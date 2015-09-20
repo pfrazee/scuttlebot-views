@@ -5,6 +5,7 @@ Uses [levi](https://github.com/cshum/levi) and [scuttlebot](https://github.com/s
 
 ## Example:
 
+```bash
 :~/disco⭐  ./bin.js whois paul -p
 "@hxGxqPrplLjRG2vtjQL87abX4QKqeLgCwQpS730nNwE=.ed25519" # hit 1
 
