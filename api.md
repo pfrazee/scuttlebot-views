@@ -2,17 +2,51 @@
 
 SSB Search Application.
 
-## query: source
+## whois: source
+
+Determine the user under the given name.
 
 ```bash
-query [--query...]
+whois {query}
+```
+
+```js
+whois(query)
+```
+
+Returns a stream of metadata.
+
+- `query` string
+
+
+## whatis: source
+
+Determine the message or blob under the given query.
+
+```bash
+whatis {query}
+```
+
+```js
+whatis(query)
+```
+
+Returns a stream of metadata.
+
+- `query` string
+
+
+## query: source
+
+Run a general-purpose search query.
+
+```bash
+query {--query...}
 ```
 
 ```js
 query(query, { fields:, gt:, gte:, lt:, lte:, values:, offset:, limit: })
 ```
-
-Run a search query.
 
 See [https://github.com/cshum/levi].
 

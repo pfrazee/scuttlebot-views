@@ -12,7 +12,6 @@ var createDisco  = require('./')
 var manifest     = mdm.manifest(fs.readFileSync('./api.md', 'utf-8'))
 var keys         = ssbKeys.loadOrCreateSync(path.join(config.path, 'secret'))
 
-console.log(keys.id, manifest)
 // special server command
 if (process.argv[2] == 'server') {
   config.keys = keys
