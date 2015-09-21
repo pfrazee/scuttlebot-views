@@ -64,17 +64,22 @@ var SSB = {
       return ps
     }
 
-    function whois (q, opts) {
+    function searchByField (field, q, linkOpts, formatOpts) {
       var referencesById = {}
       var d = defer.source()
+      var qObj = {}, qOpts = {}
+
+      // query the search index by the field
+      qObj[field]  = q
+      qOpts[field] = true
       pull(
-        query({ name: q }, { name: true }),
+        query(qObj, qOpts),
         pull.drain(function (msg) {
-          mlib.indexLinks(msg.value.content, { feed: true }, function (link, rel) {
-            // link.msg = msg
+          // collect all of the links in the matching messages
+          mlib.indexLinks(msg.value.content, linkOpts, function (link, rel) {
             link.rel = rel
             link.author = msg.value.author
-            link.name = link.name || msg.value.content.name || ''
+            link[field] = link[field] || msg.value.content[field] || ''
             referencesById[link.link] = referencesById[link.link] || []
             referencesById[link.link].push(link)
           })
@@ -82,26 +87,34 @@ var SSB = {
           if (err)
             return d.abort(err)
 
-          var map =pull.map(function (hit) {
-            if (!(opts && (opts.p || opts.pretty)))
+          // pretty-print mapper
+          var map = pull.map(function (hit) {
+            // pass-through if no pretty print
+            if (!(formatOpts && (formatOpts.p || formatOpts.pretty)))
               return hit
 
+            // construct nice renderings of each reference
             return pull.values([
               hit.id,
               hit.refs.map(function (ref) {
-                if (ref.name)
-                  return ref.author + ' ' + ref.rel + ' ' + ref.name
-                return JSON.stringify(ref)
+                if (ref[field])
+                  // "author rel $field"
+                  return ref.author + ' ' + ref.rel + ' ' + ref[field]
+                return ref
               })
             ])
           })
 
+          // results = all of the links in matching messages
           var results = Object.keys(referencesById).map(function (id) {
+            // group each hits' links by author
             referencesById[id].sort(function (b, a) {
               return b.author.localeCompare(a.author)
             })
             return { id: id, refs: referencesById[id] } 
           })
+          // sort the results by the number of inbounds
+          // :TODO: weight inbounds by trust in their authors
           results.sort(function (a, b) {
             return b.refs.len - a.refs.length
           })
@@ -111,38 +124,12 @@ var SSB = {
       return d
     }
 
+    function whois (q, opts) {
+      return searchByField('name', q, { feed: true }, opts)
+    }
+
     function whatis (q, opts) {
-      // :TODO:
-      return p.error(new Error('not yet implemented'))
-      /*var referencesById = {}
-      var d = defer.source()
-      pull(
-        query(q),
-        pull.take(1000),
-        pull.drain(function (msg) {
-          mlib.indexLinks(msg.value, { blob: true }, function (link) {
-            link.msg = msg
-            referencesById[link.link] = referencesById[link.link] || []
-            referencesById[link.link].push(link)
-          })
-          mlib.indexLinks(msg.value, { msg: true }, function (link) {
-            link.msg = msg
-            referencesById[link.link] = referencesById[link.link] || []
-            referencesById[link.link].push(link)
-          })
-        }, function (err) {
-          if (err)
-            return d.abort(err)
-          var results = Object.keys(referencesById).map(function (id) {
-            return { id: id, refs: referencesById[id] } 
-          })
-          results.sort(function (a, b) {
-            return b.refs.len - a.refs.length
-          })
-          d.resolve(pull.values(results))
-        })
-      )
-      return d*/
+      return searchByField('path', q, { blob: true }, opts)
     }
 
     require('./lib/sbot')(function (err, sbot) {
