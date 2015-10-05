@@ -1,8 +1,16 @@
 # disco
 
-Disco is a materialized view server built on Secure Scuttlebutt.
+Disco is a materialized-view server for Secure Scuttlebutt.
 It runs user-defined scripts (called "views") to process SSB logs and produce data views.
 The output views are stored and indexed, so other programs (or scripts) can read them.
+
+**Materialized Views**
+
+Materialized views are a concept from the [Kappa Architecture](http://www.kappa-architecture.com/).
+They are the output of a log-processing function.
+
+In Disco, all views are stored in leveldb databases, meaning they are either KV structures or ordered lists.
+The values are JSON documents.
 
 ## Stability
 
@@ -105,9 +113,6 @@ The important part is using `asyncMap`, as this will apply backpressure and ensu
 Every view is given a leveldb instance (technically, a sublevel) to store its data.
 Disco's interface exposes this db for reading.
 The view can create sublevels of its db, to store internal datastructures (they will not be readable from the outside).
-
-Using leveldb forces the views' output into a KV structure.
-This is an acceptible limitation for now.
 
 ## Data View Indexing
 
