@@ -1,16 +1,14 @@
 # disco
 
-Disco is a data-structure server built on Secure Scuttlebutt.
-It's a tool to compute, store, and search for data.
-
-Disco runs user-defined scripts (called "views") to process SSB logs and produce data structures.
-The output structures are stored and indexed, so other programs (or scripts) can read them.
+Disco is a materialized view server built on Secure Scuttlebutt.
+It runs user-defined scripts (called "views") to process SSB logs and produce data views.
+The output views are stored and indexed, so other programs (or scripts) can read them.
 
 ## Stability
 
 Experimental: Expect the unexpected. Please provide feedback on api and your use-case.
 
-## View Config
+## Running the Server
 
 Disco's server command is followed by a list of views to run:
 
@@ -49,7 +47,7 @@ disco score whois "bob rob robert"
 
 ## Scripting Model
 
-Scripts are executed periodically to update their data-structures.
+Scripts are executed periodically to update their data-views.
 Typically they make incremental updates to the stored data, reading recently-added messages.
 However the user can ask to clear the stored data and recompute from the top.
 
@@ -69,10 +67,10 @@ module.exports = function (sbot, disco, opts, cb) {
 The parameters are as follows:
 
  - `sbot` an RPC reference to the [Scuttlebot](https://github.com/ssbc/scuttlebot) server.
- - `disco` a set of APIs for manipulating the data-structure:
-   - `.db` a [leveldb](https://github.com/level/levelup) instance (technically a [sublevel](https://github.com/dominictarr/level-sublevel)) for storing the datastructure
+ - `disco` a set of APIs for manipulating the data-view:
+   - `.db` a [leveldb](https://github.com/level/levelup) instance (technically a [sublevel](https://github.com/dominictarr/level-sublevel)) for storing the dataview
    - `.index` a [levi](https://github.com/cshum/levi) instance for storing search documents
-   - Disco's standard API is also available (get, list, search, and score) to access other data-structures.
+   - Disco's standard API is also available (get, list, search, and score) to access other views.
  - `opts`
    - `.cursor` the cursor last provided by this script, will be `undefined` on first run or on a rebuild run
    - `.userid` the id of the local user
@@ -102,16 +100,16 @@ module.exports = function (sbot, disco, opts, cb) {
 
 The important part is using `asyncMap`, as this will apply backpressure and ensure you process each message before moving to the next one.
 
-## Data Structure Storage
+## Data View Storage
 
 Every view is given a leveldb instance (technically, a sublevel) to store its data.
 Disco's interface exposes this db for reading.
 The view can create sublevels of its db, to store internal datastructures (they will not be readable from the outside).
 
-Using leveldb forces the views' output structures into a KV structure.
+Using leveldb forces the views' output into a KV structure.
 This is an acceptible limitation for now.
 
-## Data Structure Indexing
+## Data View Indexing
 
 Every view is given a [levi](https://github.com/cshum/levi) instance to do Term-Frequency Inverse-Document-Frequency relevance indexing.
 Disco's interface exposes this index for querying.
