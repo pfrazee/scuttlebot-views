@@ -1,10 +1,10 @@
 # disco
 
-Disco is a data-structure server built on Secure Scuttlebutt logs.
-It's a tool to compute, store, and search for information.
+Disco is a data-structure server built on Secure Scuttlebutt.
+It's a tool to compute, store, and search for data.
 
-Disco runs user-defined scripts (called "views") to process SSB logs and export data structures.
-The output structures are stored and indexed for search, so other programs (or scripts) can use them.
+Disco runs user-defined scripts (called "views") to process SSB logs and produce data structures.
+The output structures are stored and indexed, so other programs (or scripts) can read them.
 
 ## Stability
 
