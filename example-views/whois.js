@@ -1,3 +1,8 @@
+/**
+ * Example Whois View
+ * taken from https://github.com/pfraze/ssb-example-whois
+ */
+
 var pull = require('pull-stream')
 var mlib = require('ssb-msgs')
 var multicb = require('multicb')

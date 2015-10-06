@@ -15,7 +15,7 @@ The values are JSON documents.
 
 **Example Views:**
 
- - [whois](./example-views/whois.js)
+ - [whois](./example-views/whois.js) - taken from https://github.com/pfraze/ssb-example-whois
 
 ## Stability
 
