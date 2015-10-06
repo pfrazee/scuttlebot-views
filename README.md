@@ -63,9 +63,10 @@ index 99ebb32..b655579 100644
 
 Then, inside `~/.ssb/config`:
 
-```json
+```js
 {
   "views": {
+    "interval": 30000, // how frequently run computation, in ms
     "scripts": [/* view scripts to run */]
   }
 }
@@ -75,7 +76,7 @@ For instance:
 
 ```json
 {
-  "views": { "scripts": ["whois", "posts", "favorites", "flags", "community-moderation"] }
+  "views": { "scripts": ["whois", "posts", "favorites", "flags"] }
 }
 ```
 
