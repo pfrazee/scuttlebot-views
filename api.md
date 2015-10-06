@@ -65,7 +65,7 @@ score(view, query, opts)
 - `opts` Supports the levi [searchStream](https://github.com/cshum/levi#searchstreamquery-options) opts.
 
 
-## listViews: async
+## listViews: sync
 
 Fetches the list of active views
 
