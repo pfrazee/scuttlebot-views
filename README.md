@@ -6,11 +6,10 @@ The output datasets are stored and indexed, so other programs (or scripts) can r
 
 *NOTE: search indexing is currently disabled while an issue with the `levi` dep is worked out.*
 
-**Materialized Views**
+**What are Materialized Views?**
 
 Materialized views are a concept from the [Kappa Architecture](http://www.kappa-architecture.com/).
 They are the output of a log-processing function.
-
 All views' outputs are stored in leveldb databases, meaning they are either KV structures or ordered lists.
 The values are JSON documents.
 
