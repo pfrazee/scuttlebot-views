@@ -1,8 +1,8 @@
 # Scuttlebot Views
 
 A materialized-views plugin for Scuttlebot 
-It runs user-defined scripts (called "views") to process SSB logs and produce data views.
-The output views are stored and indexed, so other programs (or scripts) can read them.
+It runs user-defined scripts (called "views") to process SSB logs and produce datasets.
+The output datasets are stored and indexed, so other programs (or scripts) can read them.
 
 **Materialized Views**
 
@@ -21,8 +21,11 @@ Experimental: Expect the unexpected. Please provide feedback on api and your use
 Inside scuttlebot's config json:
 
 ```js
+{
 // ...
-  views: { scripts: [...] }
+  views: {
+    scripts: [/* view scripts to run */]
+  }
 // ...
 }
 ```
@@ -30,6 +33,7 @@ Inside scuttlebot's config json:
 For instance:
 
 ```js
+{
 // ...
   views: { scripts: ['whois', 'posts', 'favorites', 'flags', 'community-moderation'] }
 // ...
