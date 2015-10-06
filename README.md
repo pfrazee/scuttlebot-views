@@ -4,6 +4,8 @@ A materialized-views plugin for Scuttlebot
 It runs user-defined scripts (called "views") to process SSB logs and produce datasets.
 The output datasets are stored and indexed, so other programs (or scripts) can read them.
 
+*NOTE: search indexing is currently disabled while an issue with the `levi` dep is worked out.*
+
 **Materialized Views**
 
 Materialized views are a concept from the [Kappa Architecture](http://www.kappa-architecture.com/).
@@ -12,9 +14,7 @@ They are the output of a log-processing function.
 All views' outputs are stored in leveldb databases, meaning they are either KV structures or ordered lists.
 The values are JSON documents.
 
-**NOTE: search indexing is currently disabled while an issue with the `levi` dep is worked out.**
-
-Example Views:
+**Example Views:**
 
  - [whois](./example-views/whois.js)
 
@@ -22,32 +22,65 @@ Example Views:
 
 Experimental: Expect the unexpected. Please provide feedback on api and your use-case.
 
-## Config
+## Setup in Scuttlebot
 
-Inside scuttlebot's config json:
+*This is a total hack right now -- Scuttlebot doesnt handle new plugins well yet.*
 
-```js
+First, inside the scuttlebot directory, do:
+
+```
+npm install scuttlebot-views
+```
+
+Then make the following file changes in scuttlebot:
+
+```diff
+diff --git a/bin.js b/bin.js
+index 6c67808..759510d 100755
+--- a/bin.js
++++ b/bin.js
+@@ -25,6 +25,7 @@ var createSbot   = require('./')
+   .use(require('./plugins/local'))
+   .use(require('./plugins/logging'))
+   .use(require('./plugins/private'))
++  .use(require('scuttlebot-views'))
+   //TODO fix plugins/local
+ 
+ var keys = ssbKeys.loadOrCreateSync(path.join(config.path, 'secret'))
+diff --git a/lib/apidocs.js b/lib/apidocs.js
+index 99ebb32..b655579 100644
+--- a/lib/apidocs.js
++++ b/lib/apidocs.js
+@@ -8,5 +8,6 @@ module.exports = {
+   gossip: fs.readFileSync(path.join(__dirname, '../plugins/gossip.md'), 'utf-8'),
+   invite: fs.readFileSync(path.join(__dirname, '../plugins/invite.md'), 'utf-8'),
+   'private': fs.readFileSync(path.join(__dirname, '../plugins/private.md'), 'utf-8'),
+-  replicate: fs.readFileSync(path.join(__dirname, '../plugins/replicate.md'), 'utf-8')
++  replicate: fs.readFileSync(path.join(__dirname, '../plugins/replicate.md'), 'utf-8'),
++  views: fs.readFileSync(path.join(__dirname, '../node_modules/scuttlebot-views/api.md'), 'utf-8')
+ }
+```
+
+Then, inside `~/.ssb/config`:
+
+```json
 {
-// ...
-  views: {
-    scripts: [/* view scripts to run */]
+  "views": {
+    "scripts": [/* view scripts to run */]
   }
-// ...
 }
 ```
 
 For instance:
 
-```js
+```json
 {
-// ...
-  views: { scripts: ['whois', 'posts', 'favorites', 'flags', 'community-moderation'] }
-// ...
+  "views": { "scripts": ["whois", "posts", "favorites", "flags", "community-moderation"] }
 }
 ```
 
 Scripts are run in the order specified, so if one view depends on the other, put the dependended-upon script first.
-Scripts are loaded from `.ssb/views` if just a name is given, otherwise they are loaded from the given path.
+Scripts are loaded from `~/.ssb/views` if just a name is given, otherwise they are loaded from the given path.
 
 ## Comandline / RPC interface
 
