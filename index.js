@@ -9,7 +9,7 @@ var zerr       = require('zerr')
 var levi       = require('levi')
 var mlib       = require('ssb-msgs')
 var valid      = require('./lib/validators')
-var apidoc     = fs.readFileSync('./api.md', 'utf-8')
+var apidoc     = fs.readFileSync(pathlib.join(__dirname, 'api.md'), 'utf-8')
 var manifest   = mdm.manifest(apidoc)
 
 function isString (s) { return 'string' === typeof s }
@@ -32,7 +32,7 @@ exports.init = function (sbot, config) {
   var configScripts = (config.views && config.views.scripts || [])
   var computeInterval = config.views && config.views.interval || 30e3
 
-  var viewsDir = path.join(config.path, 'views')
+  var viewsDir = pathlib.join(config.path, 'views')
   var activeViews = []
   var viewsDb = sbot.sublevel('views')
   var cursorsDb = sbot.sublevel('views_cursors')
@@ -70,12 +70,12 @@ exports.init = function (sbot, config) {
 
     // load view state
     cursorsDb.get(newView.name, function (err, cursor) {
-      newView.cursor = +cursor || undefined
-      newView.db     = viewsDb.sublevel(newView.name).sublevel('db')
-      newView.index  = levi(viewsDb.sublevel(newView.name).sublevel('index')) 
-        .use(levi.tokenizer())
-        .use(levi.stemmer())
-        .use(levi.stopword())
+      newView.cursor = cursor
+      newView.db = viewsDb.sublevel(newView.name).sublevel('db')
+      // newView.index  = levi(viewsDb.sublevel(newView.name).sublevel('index')) 
+      //   .use(levi.tokenizer())
+      //   .use(levi.stemmer())
+      //   .use(levi.stopword())
 
       // run cb, if given
       cb && cb()
@@ -107,12 +107,25 @@ exports.init = function (sbot, config) {
       return cb(new ViewNotFoundError(name))
 
     // clear cursor
+    view.isRunning = true
     view.cursor = undefined
     cursorsDb.del(view.name, function (err) {
       if (err)
         return cb(new PersistError(err))
 
-      runView(view, cb)
+      // clear db
+      pull(
+        pl.read(view.db, { keys: true, values: false }),
+        pull.paraMap(function (key, cb) {
+          view.db.del(key, cb)
+        }),
+        pull.onEnd(function () {
+          view.isRunning = false
+
+          // run view
+          runView(view, cb)
+        })
+      )
     })
   }
 
@@ -125,10 +138,10 @@ exports.init = function (sbot, config) {
         return
       runView(view, function (err) {
         if (err)
-          server.emit('log:warning', ['views', view.name, 'Errored while running: '+err, err])
+          sbot.emit('log:warning', ['views', view.name, 'Errored while running: '+err, err])
         doNext()
       })
-    })
+    }
   }
 
   function runView (name, cb) {
@@ -154,20 +167,21 @@ exports.init = function (sbot, config) {
     // run the view's process method
     try {
       var startTs = Date.now()
-      server.emit('log:info', ['views', view.name, 'Computing'])
+      sbot.emit('log:info', ['views', view.name, 'Computing'])
       view.isRunning = true
       view.process(sbot, viewParam, function (err, cursor) {
         view.isRunning = false
         if (err)
-          return cb(new ViewScriptError(e, view.name)
-        server.emit('log:info', ['views', view.name, 'Compute finished in '+(Date.now() - startTs)])
+          return cb(new ViewScriptError(e, view.name))
+        sbot.emit('log:info', ['views', view.name, 'Compute finished in '+(Date.now() - startTs)+' ms'])
 
         // update cursor
         view.cursor = cursor
+        if (!cursor) return cb()
         cursorsDb.put(view.name, cursor, function (err) {
           if (err)
             return cb(new PersistError(err))
-          cb()
+          cb(null, true)
         })
       })
     }

@@ -108,7 +108,7 @@ removeView(view, cb)
 
 ## rebuild: async
 
-Clear the view's db and index, and rerun the view-script from 0. Can accept any arbitrary number of view params.
+Clear the view's db and index, and rerun the view-script from 0.
 
 ```bash
 rebuild {..views}
