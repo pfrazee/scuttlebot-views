@@ -28,7 +28,7 @@ $ sbot views.get whois paul
   {
     "id": "@hxGxqPrplLjRG2vtjQL87abX4QKqeLgCwQpS730nNwE=.ed25519",
     "name": "paul",
-    "trust": 3
+    "trust": "high: self-assigned by you"
   }
 ]
 
@@ -37,14 +37,15 @@ $ sbot views.get whois bob
   {
     "id": "@HSZ7V+Hrm0mbqNGkINtN1CL8VEsY1CDMBu5yPCHg5zI=.ed25519",
     "name": "bob",
-    "trust": 1
+    "trust": "low: self-assigned by an unfollowed user"
   },
   {
     "id": "@PgeunKGJm05DZ0WWoRtGvH37gXMbDnVuse9HhaUT6RI=.ed25519",
     "name": "bob",
-    "trust": 1
+    "trust": "low: self-assigned by an unfollowed user"
   }
 ]
+
 ```
 
 ## Stability

@@ -8,13 +8,14 @@ var mlib = require('ssb-msgs')
 var multicb = require('multicb')
 
 module.exports = function (sbot, view, cb) {
-  var assignmentsDb = view.db.sublevel('assigns')
+  var assignmentsDb = view.db.sublevel('assigns') // internal db, feedId->name assignments
 
   sbot.friends.all('follow', function (err, follows) {
     if (err) return cb(err)
 
     var last
     pull(
+      // fetch type: about msgs
       sbot.messagesByType((view.cursor) ? { type: 'about', gt: view.cursor } : 'about'),
       pull.asyncMap(function (msg, cb2) {
         last = msg
@@ -22,8 +23,6 @@ module.exports = function (sbot, view, cb) {
 
         // expected schema: { type: 'about', name: String, about: FeedLink }
         var c = msg.value.content
-
-        // sanity check
         if (!nonEmptyStr(c.name))
           return cb2()
 
@@ -33,52 +32,60 @@ module.exports = function (sbot, view, cb) {
           return cb2()
 
         // remove the last assignment by this user
-        assignmentsDb.get(target.link, function (err, name) {
-          if (!name) return next()
-
-          view.db.get(name, function (err, nameEntries) {
-            if (!nameEntries) return next()
-
-            nameEntries = nameEntries.filter(function (entry) { return entry.id !== target.link })
-            view.db.put(name, nameEntries, next)
-          })
-        })
-
-        function next () {
+        removeOldAssignment(target.link, function () {
           // store the new assignment
+          var done = multicb()
           var name = makeNameSafe(c.name)
-          view.db.get(name, function (err, entries) {
-            entries = entries || []
-            entries.push({
-              id:    target.link,
-              name:  name,
-              trust: rateTrust(msg, view.userId, follows)
-            })
-            view.db.put(name, entries, function (err) {
-              if (err) throw err
-              assignmentsDb.put(target.link, name, cb2)
-            })
-          })
-        }
+          assignmentsDb.put(target.link, name, done())
+          addNameEntry(name, {
+            id:    target.link,
+            name:  name,
+            trust: rateTrust(msg, view.userId, follows)
+          }, done())
+          done(cb2)          
+        })
       }),
       pull.drain(null, function (err) {
         if (err) throw err
         cb(null, last && last.ts)
       })
     )
+
+    function addNameEntry (name, entry, cb) {
+      // pull current state
+      view.db.get(name, function (err, entries) {
+        entries = entries || []
+        entries.push(entry)
+        // write new state
+        view.db.put(name, entries, cb)
+      })
+    }
+
+    function removeOldAssignment (feedId, cb) {
+      // look up current name
+      assignmentsDb.get(feedId, function (err, name) {
+        if (!name) return cb()
+
+        // get the name's entries
+        view.db.get(name, function (err, entries) {
+          if (!entries) return cb()
+
+          // filter out the old assignment
+          entries = entries.filter(function (entry) { return entry.id !== feedId })
+          view.db.put(name, entries, cb)
+        })
+      })
+    }
   })
 }
 
 // trust-policy
 function rateTrust (msg, selfId, follows) {
-  // is local user: high trust
   if (msg.value.author === selfId)
-    return 3
-  // followed by local user: medium trust
+    return 'high: self-assigned by you'
   if (follows[selfId][msg.value.author])
-    return 2
-  // otherwise: low trust
-  return 1
+    return 'medium: self-assigned by a followed user'
+  return 'low: self-assigned by an unfollowed user'
 }
 
 function nonEmptyStr (str) {
