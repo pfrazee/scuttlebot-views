@@ -1,25 +1,26 @@
 {
-  "name": "disco",
+  "name": "scuttlebot-views",
   "version": "1.0.0",
-  "description": "SSB search",
+  "description": "A materialized-views plugin for Scuttlebot",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pfraze/disco.git"
+    "url": "git+https://github.com/pfraze/scuttlebot-views.git"
   },
   "keywords": [
     "ssb",
-    "search"
+    "scuttlebot",
+    "views"
   ],
   "author": "Paul Frazee <pfrazee@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pfraze/disco/issues"
+    "url": "https://github.com/pfraze/scuttlebot-views/issues"
   },
-  "homepage": "https://github.com/pfraze/disco#readme",
+  "homepage": "https://github.com/pfraze/scuttlebot-views#readme",
   "dependencies": {
     "deep-extend": "^0.4.0",
     "levi": "^1.6.3",
