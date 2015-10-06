@@ -12,6 +12,8 @@ They are the output of a log-processing function.
 All views' outputs are stored in leveldb databases, meaning they are either KV structures or ordered lists.
 The values are JSON documents.
 
+**NOTE: search indexing is currently disabled while an issue with the `levi` dep is worked out.**
+
 ## Stability
 
 Experimental: Expect the unexpected. Please provide feedback on api and your use-case.
@@ -62,10 +64,10 @@ You can access these APIs via RPC or CLI.
 From bash:
 
 ```
-sbot views get whois bob
-sbot views list whois
-sbot views search whois "bob rob robert"
-sbot views score whois "bob rob robert"
+sbot views.get whois bob
+sbot views.list whois
+sbot views.search whois "bob rob robert"
+sbot views.score whois "bob rob robert"
 ```
 
 ## Scripting Model
