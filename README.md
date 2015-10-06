@@ -14,6 +14,10 @@ The values are JSON documents.
 
 **NOTE: search indexing is currently disabled while an issue with the `levi` dep is worked out.**
 
+Example Views:
+
+ - [whois](./example-views/whois.js)
+
 ## Stability
 
 Experimental: Expect the unexpected. Please provide feedback on api and your use-case.
