@@ -81,7 +81,7 @@ It will be `undefined` on a rebuild run.
 Scripts are defined as node-modules that export, at the toplevel, a function:
 
 ```js
-module.exports = function (sbot, view, opts, cb) {
+module.exports = function (sbot, view, cb) {
   // ...
   // when done: cb(err, cursor)
 })
@@ -93,10 +93,9 @@ The parameters are as follows:
  - `view` a set of APIs for manipulating the data-view:
    - `.db` a [leveldb](https://github.com/level/levelup) instance (technically a [sublevel](https://github.com/dominictarr/level-sublevel)) for storing the dataview
    - `.index` a [levi](https://github.com/cshum/levi) instance for storing search documents
-   - The plugin's API is also available (get, list, search, and score) to access other views.
- - `opts`
    - `.cursor` the cursor last provided by this script, will be `undefined` on first run or on a rebuild run
-   - `.userid` the id of the local user
+   - `.userId` the id of the local user
+   - The plugin's API is also available (get, list, search, and score) to access other views.
  - `cb` the callback, should either be called with an error or the cursor to pass on the next incremental execution
 
 The recommended structure of a script is as follows:
@@ -104,10 +103,10 @@ The recommended structure of a script is as follows:
 ```js
 var pull = require('pull-stream')
 
-module.exports = function (sbot, view, opts, cb) {
+module.exports = function (sbot, view, cb) {
   var last
   pull(
-    sbot.createLogStream({ gt: opts.cursor }),
+    sbot.createLogStream({ gt: view.cursor }),
     pull.asyncMap(function (msg, cb2) {
       last = msg
       // do all processing on the message ...
