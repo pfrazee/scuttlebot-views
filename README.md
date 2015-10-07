@@ -20,7 +20,7 @@ The values are JSON documents.
 **Example Usage:**
 
 ```bash
-$ sbot views.addView ~/scuttlebot-views/example-views/whois
+$ sbot views.enable ~/scuttlebot-views/example-views/whois
 0
 
 $ sbot views.get whois paul
@@ -123,8 +123,8 @@ The plugin exposes both with the following CLI/RPC methods:
  - `search(view, q, [opts])` streams query results from the index. Supports the levi [searchStream](https://github.com/cshum/levi#searchstreamquery-options) opts.
  - `score(view, q, [opts])` streams query scores from the index. Supports the levi [scoreStream](https://github.com/cshum/levi#scorestreamquery-options) opts.
  - `listViews(cb)` fetches the list of active views
- - `addView(view, pos, cb)` add a view to the active list. `pos` is an optional position in the list of active views (defaults to the end).
- - `removeView(view, cb)` remove a view from the active list
+ - `enable(view, pos, cb)` add a view to the active list. `pos` is an optional position in the list of active views (defaults to the end).
+ - `disable(view, cb)` remove a view from the active list
  - `rebuild(...views, cb)` clear the view's db and index, and rerun the view-script from 0. Can accept any arbitrary number of view params
  - `rebuildAll(cb)` clear all view dbs and indexes and rerun the view-scripts from 0.
 

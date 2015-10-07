@@ -77,30 +77,30 @@ listViews(cb)
 ```
 
 
-## addView: sync
+## enable: sync
 
 Add a view to the active list.
 
 ```bash
-addView {view} [post]
+enable {view} [post]
 ```
 ```js
-addView(view, pos, cb)
+enable(view, pos, cb)
 ````
 
  - `view` string
  - `pos` an optional position in the list of active views (defaults to the end)
 
 
-## removeView: sync
+## disable: sync
 
 Remove a view from the active list.
 
 ```bash
-removeView {view}
+disable {view}
 ```
 ```js
-removeView(view, cb)
+disable(view, cb)
 ```
 
  - `view` string

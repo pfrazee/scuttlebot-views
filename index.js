@@ -233,8 +233,8 @@ exports.init = function (sbot, config) {
       })
     }),
 
-    addView: valid.sync(addView, 'string', 'number?'),
-    removeView: valid.sync(removeView, 'string'),
+    enable: valid.sync(addView, 'string', 'number?'),
+    disable: valid.sync(removeView, 'string'),
     rebuild: valid.async(rebuildView, 'string'),
 
     rebuildAll: valid.async(function (cb) {
